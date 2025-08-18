@@ -292,6 +292,13 @@ func TestGetVfRepresentor(t *testing.T) {
 
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
+			// mock netlink calls, trigger failure to fallback to sysfs
+			nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+			netlinkops.SetNetlinkOps(nlOpsMock)
+			defer netlinkops.ResetNetlinkOps()
+			nlOpsMock.On("DevLinkGetDevicePortList", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(
+				nil, fmt.Errorf("failed to get devlink ports"))
+
 			teardown := setupRepresentorEnvForGetVfRepresentor(t, tcase.uplink, tcase.vfReps)
 			defer teardown()
 			vfRep, err := GetVfRepresentor(tcase.uplink.Name, tcase.vfIndex)
@@ -743,6 +750,13 @@ func TestGetSfRepresentor(t *testing.T) {
 
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
+			// mock netlink calls, trigger failure to fallback to sysfs
+			nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+			netlinkops.SetNetlinkOps(nlOpsMock)
+			defer netlinkops.ResetNetlinkOps()
+			nlOpsMock.On("DevLinkGetDevicePortList", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(
+				nil, fmt.Errorf("failed to get devlink ports"))
+
 			teardown := setupSfRepresentorEnv(t, tcase.sfReps)
 			defer teardown()
 			sfRep, err := GetSfRepresentor(tcase.uplink, tcase.sfIndex)
@@ -852,8 +866,8 @@ func TestGetPortIndexFromRepresentor(t *testing.T) {
 			teardown := setupRepresentorEnv(t, "", tcase.reps)
 			defer teardown()
 
-			nlOpsMock := netlinkopsMocks.NetlinkOps{}
-			netlinkops.SetNetlinkOps(&nlOpsMock)
+			nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+			netlinkops.SetNetlinkOps(nlOpsMock)
 			defer netlinkops.ResetNetlinkOps()
 
 			nlOpsMock.On("DevLinkGetPortByNetdevName", mock.AnythingOfType("string")).Return(
@@ -1053,8 +1067,8 @@ func TestGetVfRepresentorPortFlavour(t *testing.T) {
 			teardown := setupRepresentorEnv(t, "", []*repContext{&tcase.rep})
 			defer teardown()
 
-			nlOpsMock := netlinkopsMocks.NetlinkOps{}
-			netlinkops.SetNetlinkOps(&nlOpsMock)
+			nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+			netlinkops.SetNetlinkOps(nlOpsMock)
 			defer netlinkops.ResetNetlinkOps()
 
 			nlOpsMock.On("DevLinkGetPortByNetdevName", mock.AnythingOfType("string")).Return(
@@ -1072,8 +1086,8 @@ func TestGetVfRepresentorPortFlavour(t *testing.T) {
 }
 
 func TestGetVfRepresentorPortFlavourDevlink(t *testing.T) {
-	nlOpsMock := netlinkopsMocks.NetlinkOps{}
-	netlinkops.SetNetlinkOps(&nlOpsMock)
+	nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+	netlinkops.SetNetlinkOps(nlOpsMock)
 	defer netlinkops.ResetNetlinkOps()
 
 	teardown := setupRepresentorEnv(t, "", []*repContext{{
@@ -1138,8 +1152,8 @@ State      : Follow
 
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
-			nlOpsMock := netlinkopsMocks.NetlinkOps{}
-			netlinkops.SetNetlinkOps(&nlOpsMock)
+			nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+			netlinkops.SetNetlinkOps(nlOpsMock)
 			nlOpsMock.On("DevLinkGetPortByNetdevName", mock.AnythingOfType("string")).Return(
 				nil, fmt.Errorf("failed to get devlink port"))
 
@@ -1155,8 +1169,8 @@ State      : Follow
 }
 
 func TestGetRepresentorPeerMacAddressDevlink(t *testing.T) {
-	nlOpsMock := netlinkopsMocks.NetlinkOps{}
-	netlinkops.SetNetlinkOps(&nlOpsMock)
+	nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+	netlinkops.SetNetlinkOps(nlOpsMock)
 	defer netlinkops.ResetNetlinkOps()
 
 	teardown := setupRepresentorEnv(t, "", []*repContext{{
@@ -1241,8 +1255,8 @@ func TestSetRepresentorPeerMacAddress(t *testing.T) {
 			teardown := setupRepresentorEnv(t, "", tcase.reps)
 			defer teardown()
 
-			nlOpsMock := netlinkopsMocks.NetlinkOps{}
-			netlinkops.SetNetlinkOps(&nlOpsMock)
+			nlOpsMock := netlinkopsMocks.NewMockNetlinkOps(t)
+			netlinkops.SetNetlinkOps(nlOpsMock)
 			defer netlinkops.ResetNetlinkOps()
 
 			nlOpsMock.On("DevLinkGetPortByNetdevName", mock.AnythingOfType("string")).Return(nil, fmt.Errorf("no devlink support"))

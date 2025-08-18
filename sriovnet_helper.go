@@ -106,6 +106,17 @@ func readPCIsymbolicLink(symbolicLink string) (string, error) {
 
 	return pciDevDir[3:], err
 }
+
+func getPCIFromDeviceName(netdevName string) (string, error) {
+	symbolicLink := filepath.Join(NetSysDir, netdevName, pcidevPrefix)
+	pciDevDir, err := os.Readlink(symbolicLink)
+	if err != nil {
+		return "", fmt.Errorf("failed to read symbolic link %s: %v", symbolicLink, err)
+	}
+	pciAddress := filepath.Base(pciDevDir)
+	return pciAddress, err
+}
+
 func vfPCIDevNameFromVfIndex(pfNetdevName string, vfIndex int) (string, error) {
 	symbolicLink := filepath.Join(NetSysDir, pfNetdevName, pcidevPrefix, fmt.Sprintf("%s%v",
 		netDevVfDevicePrefix, vfIndex))
